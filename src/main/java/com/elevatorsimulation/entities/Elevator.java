@@ -1,9 +1,10 @@
 package com.elevatorsimulation.entities;
 
 import java.util.ArrayList;
-import com.com.elevatorsimulation.Message.Direction;
-import com.com.elevatorsimulation.Message.Message;
-import com.elevator.statemachine.State.StateMachine;
+import com.elevatorsimulation.Message.Direction;
+import com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.State.Idle;
+import com.elevatorsimulation.State.StateMachine;
 
 public class Elevator {
     // A unique id of the elevator.
@@ -21,7 +22,7 @@ public class Elevator {
     // Number of passengers inside the elevator.
     private int numPassengers;
 
-    private StateMachine stateMachine;
+    private StateMachine<Elevator> stateMachine;
 
     // List containing sorted list of destinations.
     private ArrayList<Integer> destinationUpList;
@@ -30,9 +31,12 @@ public class Elevator {
     public Elevator (int id, int capacity, int currentFloor) {
         this.id = id;
         this.capacity = capacity;
-        destinationDownList = new ArrayList<Integer>();
-        destinationUpList = new ArrayList<Integer>();
+        this.destinationDownList = new ArrayList<Integer>();
+        this.destinationUpList = new ArrayList<Integer>();
         this.currentFloor = currentFloor;
+        this.direction = Direction.NONE;
+        this.stateMachine = new StateMachine<Elevator>(this);
+        this.stateMachine.setCurrentState(Idle.getInstance());
     }
 
     public boolean isFull() {

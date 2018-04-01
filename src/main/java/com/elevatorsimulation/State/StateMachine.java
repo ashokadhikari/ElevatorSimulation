@@ -1,6 +1,7 @@
-package com.elevator.statemachine.State;
+package com.elevatorsimulation.State;
 
-import com.com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.entities.Elevator;
 
 public class StateMachine <T> {
     private T owner;
@@ -18,7 +19,7 @@ public class StateMachine <T> {
         globalState = null;
     }
 
-    public void changeState(IState newState) {
+    public void changeState(IState<T> newState) {
         if (currentState != null) {
             currentState.exit(owner);
         }
@@ -27,6 +28,22 @@ public class StateMachine <T> {
         if (currentState != null) {
             currentState.enter(owner);
         }
+    }
+
+    public void setCurrentState(IState<T> currentState) {
+        this.currentState = currentState;
+    }
+
+    public IState<T> getCurrentState() {
+        return currentState;
+    }
+
+    public IState<T> getPreviousState() {
+        return previousState;
+    }
+
+    public IState<T> getGlobalState() {
+        return globalState;
     }
 
     public void returnToPreviousState() {

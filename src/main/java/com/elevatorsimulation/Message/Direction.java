@@ -1,4 +1,4 @@
-package com.com.elevatorsimulation.Message;
+package com.elevatorsimulation.Message;
 
 public enum  Direction {
     UP,

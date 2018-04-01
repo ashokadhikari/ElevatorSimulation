@@ -1,4 +1,4 @@
-package com.com.elevatorsimulation.Message;
+package com.elevatorsimulation.Message;
 
 public class Message {
     private int requestFloor;

@@ -1,11 +1,11 @@
-package com.elevator.statemachine.State;
+package com.elevatorsimulation.State;
 
-import com.com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.Message.Message;
 import com.elevatorsimulation.entities.Elevator;
 
 public class Idle implements IState<Elevator> {
 
-    public static Idle instance;
+    private static Idle instance = null;
 
     private Idle() {
 
@@ -15,6 +15,7 @@ public class Idle implements IState<Elevator> {
         if (instance == null) {
             instance = new Idle();
         }
+        System.out.println("Getting instance from Idle.");
         return instance;
     }
 

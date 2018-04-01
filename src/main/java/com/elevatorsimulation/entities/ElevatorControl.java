@@ -1,8 +1,8 @@
 package com.elevatorsimulation.entities;
 
 import java.util.ArrayList;
-import com.com.elevatorsimulation.Message.Direction;
-import com.com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.Message.Direction;
+import com.elevatorsimulation.Message.Message;
 
 public class ElevatorControl {
     private int numRacks;

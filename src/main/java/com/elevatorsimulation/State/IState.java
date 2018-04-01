@@ -1,6 +1,6 @@
-package com.elevator.statemachine.State;
+package com.elevatorsimulation.State;
 
-import com.com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.Message.Message;
 
 public interface IState<T> {
     /*
