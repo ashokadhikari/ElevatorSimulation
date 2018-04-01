@@ -62,13 +62,34 @@ public class ElevatorControl {
                 return 2 * (elevator.getLastDestinationUpwards() - elevator.getCurrentFloor() - floor);
             }
         }
-        else {
+        else if (elevator.getDirection() == Direction.DOWN) {
             if (floor < elevator.getCurrentFloor()) {
                 return elevator.getCurrentFloor() - floor;
             } else {
                 return elevator.getCurrentFloor() + floor - 2 * (elevator.getLastDestinationDownwards());
             }
+        } else {
+            if (floor < elevator.getCurrentFloor()) {
+                return elevator.getCurrentFloor() - floor;
+            } else {
+                return floor - elevator.getCurrentFloor();
+            }
         }
     }
 
+    public int getNumRacks() {
+        return numRacks;
+    }
+
+    public int getElevatorCapacity() {
+        return elevatorCapacity;
+    }
+
+    public int getElevatorRestingFloor() {
+        return elevatorRestingFloor;
+    }
+
+    public ArrayList<Elevator> getElevators() {
+        return elevators;
+    }
 }
