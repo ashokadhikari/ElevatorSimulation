@@ -71,26 +71,23 @@ public class ElevatorControl {
    */
   public int computeElevatorDistance(Request request, Elevator elevator) {
     if (elevator.getDirection() == Direction.UP) {
-      if (request.getFloor() > elevator.getCurrentFloor()) {
-        return request.getFloor() - elevator.getCurrentFloor();
+      if (request.getFloor() > elevator.getCurrentFloor() || elevator.getDestinationsUp()
+          .isEmpty()) {
+        return Math.abs(request.getFloor() - elevator.getCurrentFloor());
       } else {
-        System.out.println(elevator.getDestinationsUp().getLastDestination());
         return 2 * (elevator.getDestinationsUp().getLastDestination()) - elevator.getCurrentFloor()
             - request.getFloor();
       }
     } else if (elevator.getDirection() == Direction.DOWN) {
-      if (request.getFloor() < elevator.getCurrentFloor()) {
-        return elevator.getCurrentFloor() - request.getFloor();
+      if (request.getFloor() < elevator.getCurrentFloor() || elevator.getDestinationsDown()
+          .isEmpty()) {
+        return Math.abs(elevator.getCurrentFloor() - request.getFloor());
       } else {
         return elevator.getCurrentFloor() + request.getFloor() - 2 * (elevator.getDestinationsDown()
             .getLastDestination());
       }
     } else {
-      if (request.getFloor() < elevator.getCurrentFloor()) {
-        return elevator.getCurrentFloor() - request.getFloor();
-      } else {
-        return request.getFloor() - elevator.getCurrentFloor();
-      }
+      return Math.abs(request.getFloor() - elevator.getCurrentFloor());
     }
   }
 

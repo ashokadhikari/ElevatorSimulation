@@ -42,5 +42,17 @@ public class Loading implements IState<Elevator> {
 
   public void onMessage(Elevator owner, Message message) {
     logger.log(Level.INFO, "Loading State: Received message");
+    switch (message.getDestinationListDirection()) {
+      case UP:
+        owner.getDestinationsUp().addDestination(message.getRequestFloor());
+        break;
+
+      case DOWN:
+        owner.getDestinationsDown().addDestination(message.getRequestFloor());
+        break;
+
+      default:
+        break;
+    }
   }
 }

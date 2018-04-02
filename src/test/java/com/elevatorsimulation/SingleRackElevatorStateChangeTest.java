@@ -272,4 +272,23 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     assertEquals(5, elevator.getDestinationsDown().getNextDestination());
   }
 
+  public void testElevatorStateHandleRequestWhenInLoadingState() {
+    /*
+     * Elevator is in Loading State, current floor is 10.
+     * And elevator direction is UP.
+     * When User requests Floor=5, Direction=DOWN.
+     * Then destination down list should have [5].
+     * And the elevator state should still be Loading.
+     * */
+    elevator.setCurrentFloor(10);
+    elevator.getStateMachine().setCurrentState(Loading.getInstance());
+    elevator.setDirection(Direction.UP);
+
+    Request request = new Request(5, Direction.DOWN);
+    elevatorControl.handleRequest(request);
+
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    assertEquals(5, elevator.getDestinationsDown().getNextDestination());
+    assertEquals(5, elevatorControl.computeElevatorDistance(request, elevator));
+  }
 }
