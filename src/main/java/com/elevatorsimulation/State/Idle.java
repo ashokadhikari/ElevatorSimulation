@@ -37,5 +37,16 @@ public class Idle implements IState<Elevator> {
 
   public void onMessage(Elevator owner, Message message) {
     logger.log(Level.INFO, "Idle State: Received message.");
+    if (message.getRequestFloor() == owner.getCurrentFloor()) {
+      owner.getStateMachine().changeState(Loading.getInstance());
+    } else if (message.getRequestFloor() > owner.getCurrentFloor()) {
+      owner.getDestinationsUp().addDestination(message.getRequestFloor());
+      owner.setDirection(Direction.UP);
+      owner.getStateMachine().changeState(Moving.getInstance());
+    } else {
+      owner.getDestinationsDown().addDestination(message.getRequestFloor());
+      owner.setDirection(Direction.DOWN);
+      owner.getStateMachine().changeState(Moving.getInstance());
+    }
   }
 }

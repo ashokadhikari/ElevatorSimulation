@@ -33,8 +33,7 @@ public class ElevatorControl {
 
   /*
    * handleRequest - Find out the best elevator and send it the request.
-   * @param floor - number of floor the user wants to go.
-   * @param direction - the direction user wants to go.
+   * @param request - object containing floor and direction information of the request.
    * TODO: Add logic to check for elevator capacity. If the best elevator is already full,
    * select the second best one
    */
@@ -67,8 +66,7 @@ public class ElevatorControl {
   /*
    * computeElevatorDistance Computes the distance for current floor and direction to the given
    * elevator.
-   * @param floor
-   * @param direction
+   * @param request - object containing floor and direction information of the request.
    * @param elevator - the elevator to compute distance with
    */
   public int computeElevatorDistance(Request request, Elevator elevator) {

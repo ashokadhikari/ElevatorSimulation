@@ -237,4 +237,39 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     assertTrue(elevator.getDestinationsUp().isEmpty());
     assertEquals(Direction.NONE, elevator.getDirection());
   }
+
+  public void testElevatorStateSameFloorInIdleState() {
+    /*
+    * Elevator is in Idle State, current floor is 10.
+    * When User requests Floor=10, Direction=UP.
+    * Then elevator should change state to Loading State.
+    * And elevator direction should be NONE.
+    * */
+    elevator.setCurrentFloor(10);
+
+    Request request = new Request(10, Direction.UP);
+    elevatorControl.handleRequest(request);
+
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    assertEquals(Direction.NONE, elevator.getDirection());
+  }
+
+  public void testElevatorStateDifferentFloorInIdleState() {
+    /*
+    * Elevator is in Idle State, current floor is 10.
+    * When User requests Floor=5, Direction=DOWN.
+    * Then elevator should change state to Moving State.
+    * And elevator direction should be DOWN.
+    * And destination down list should have [5].
+    * */
+    elevator.setCurrentFloor(10);
+
+    Request request = new Request(5, Direction.DOWN);
+    elevatorControl.handleRequest(request);
+
+    assertTrue(elevator.getStateMachine().isInState(Moving.getInstance()));
+    assertEquals(Direction.DOWN, elevator.getDirection());
+    assertEquals(5, elevator.getDestinationsDown().getNextDestination());
+  }
+
 }
