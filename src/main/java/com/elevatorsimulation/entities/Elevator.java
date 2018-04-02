@@ -7,76 +7,77 @@ import com.elevatorsimulation.State.Idle;
 import com.elevatorsimulation.State.StateMachine;
 
 public class Elevator {
-    // A unique id of the elevator.
-    private int id;
 
-    // Number of people this elevator can hold.
-    private int capacity;
+  // A unique id of the elevator.
+  private int id;
 
-    // The current floor the elevator is at.
-    private int currentFloor;
+  // Number of people this elevator can hold.
+  private int capacity;
 
-    // The direction the elevator is going.
-    private Direction direction;
+  // The current floor the elevator is at.
+  private int currentFloor;
 
-    // Number of passengers inside the elevator.
-    private int numPassengers;
+  // The direction the elevator is going.
+  private Direction direction;
 
-    private StateMachine<Elevator> stateMachine;
+  // Number of passengers inside the elevator.
+  private int numPassengers;
 
-    // List containing sorted list of destinations.
-    private ArrayList<Integer> destinationUpList;
-    private ArrayList<Integer> destinationDownList;
+  private StateMachine<Elevator> stateMachine;
 
-    public Elevator (int id, int capacity, int currentFloor) {
-        this.id = id;
-        this.capacity = capacity;
-        this.destinationDownList = new ArrayList<Integer>();
-        this.destinationUpList = new ArrayList<Integer>();
-        this.currentFloor = currentFloor;
-        this.direction = Direction.NONE;
-        this.stateMachine = new StateMachine<Elevator>(this);
-        this.stateMachine.setCurrentState(Idle.getInstance());
-    }
+  // List containing sorted list of destinations.
+  private Destinations destinationsUp;
+  private Destinations destinationsDown;
 
-    public boolean isFull() {
-        return numPassengers > capacity;
-    }
+  public Elevator(int id, int capacity, int currentFloor) {
+    this.id = id;
+    this.capacity = capacity;
+    this.destinationsDown = new Destinations(true);
+    this.destinationsUp = new Destinations(false);
+    this.currentFloor = currentFloor;
+    this.direction = Direction.NONE;
+    this.stateMachine = new StateMachine<Elevator>(this);
+    this.stateMachine.setCurrentState(Idle.getInstance());
+  }
 
-    public int getCurrentFloor() {
-        return currentFloor;
-    }
+  public boolean isFull() {
+    return numPassengers > capacity;
+  }
 
-    public void setCurrentFloor(int currentFloor) {
-        this.currentFloor = currentFloor;
-    }
+  public int getCurrentFloor() {
+    return currentFloor;
+  }
 
-    public Direction getDirection() {
-        return direction;
-    }
+  public void setCurrentFloor(int currentFloor) {
+    this.currentFloor = currentFloor;
+  }
 
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
+  public Direction getDirection() {
+    return direction;
+  }
 
-    public int getLastDestinationUpwards() {
-        return destinationUpList.get(destinationUpList.size() - 1);
-    }
+  public void setDirection(Direction direction) {
+    this.direction = direction;
+  }
 
-    public int getLastDestinationDownwards() {
-        return destinationDownList.get(destinationDownList.size() - 1);
-    }
+  public Destinations getDestinationsUp() {
+    return destinationsUp;
+  }
 
-    public StateMachine getStateMachine() {
-        return stateMachine;
-    }
+  public Destinations getDestinationsDown() {
+    return destinationsDown;
+  }
 
-    public void handleRequest(int floor) {
-        Message message = new Message(floor, Direction.NONE);
-        this.sendMessage(message);
-    }
+  public StateMachine getStateMachine() {
+    return stateMachine;
+  }
 
-    public void sendMessage(Message message) {
-        this.stateMachine.onMessage(message);
-    }
+  public void handleRequest(int floor) {
+    Message message = new Message(floor, Direction.NONE);
+    this.sendMessage(message);
+  }
+
+  public void sendMessage(Message message) {
+    stateMachine.onMessage(message);
+  }
 }

@@ -1,7 +1,7 @@
 package com.elevatorsimulation.Message;
 
-public enum  Direction {
-    UP,
-    DOWN,
-    NONE
+public enum Direction {
+  UP,
+  DOWN,
+  NONE
 }

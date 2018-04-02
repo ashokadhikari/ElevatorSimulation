@@ -1,28 +1,30 @@
 package com.elevatorsimulation.Message;
 
 public class Message {
-    private int requestFloor;
 
-    private Direction direction;
+  private int requestFloor;
 
-    public Message(int requestFloor, Direction direction) {
-        this.requestFloor = requestFloor;
-        this.direction = direction;
-    }
+  // Represents the list to which the request floor needs to be added
+  private Direction destinationListDirection;
 
-    public int getRequestFloor() {
-        return requestFloor;
-    }
+  public Message(int requestFloor, Direction destinationListDirection) {
+    this.requestFloor = requestFloor;
+    this.destinationListDirection = destinationListDirection;
+  }
 
-    public void setRequestFloor(int requestFloor) {
-        this.requestFloor = requestFloor;
-    }
+  public int getRequestFloor() {
+    return requestFloor;
+  }
 
-    public Direction getDirection() {
-        return direction;
-    }
+  public void setRequestFloor(int requestFloor) {
+    this.requestFloor = requestFloor;
+  }
 
-    public void setDirection(Direction direction) {
-        this.direction = direction;
-    }
+  public Direction getDestinationListDirection() {
+    return destinationListDirection;
+  }
+
+  public void setDestinationListDirection(Direction destinationListDirection) {
+    this.destinationListDirection = destinationListDirection;
+  }
 }
