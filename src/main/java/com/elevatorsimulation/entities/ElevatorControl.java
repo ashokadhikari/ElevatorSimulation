@@ -3,6 +3,7 @@ package com.elevatorsimulation.entities;
 import java.util.ArrayList;
 import com.elevatorsimulation.Message.Direction;
 import com.elevatorsimulation.Message.Message;
+import com.elevatorsimulation.Message.Request;
 
 public class ElevatorControl {
 
@@ -26,7 +27,7 @@ public class ElevatorControl {
     elevators = new ArrayList<Elevator>(this.numRacks);
 
     for (int i = 0; i < this.numRacks; ++i) {
-      elevators.add(new Elevator(i, elevatorCapacity, elevatorRestingFloor));
+      elevators.add(new Elevator(elevatorCapacity, elevatorRestingFloor, numFloors));
     }
   }
 
@@ -37,18 +38,29 @@ public class ElevatorControl {
    * TODO: Add logic to check for elevator capacity. If the best elevator is already full,
    * select the second best one
    */
-  public void handleRequest(int floor, Direction direction) {
+  public void handleRequest(Request request) {
     Elevator bestElevator = null;
     int minimum_distance = Integer.MAX_VALUE;
     for (Elevator elevator : this.elevators) {
-      int distance = computeElevatorDistance(floor, direction, elevator);
+      int distance = computeElevatorDistance(request, elevator);
       if (distance < minimum_distance) {
         minimum_distance = distance;
         bestElevator = elevator;
       }
     }
+    Message message = new Message();
+    message.setRequestFloor(request.getFloor());
     if (bestElevator != null) {
-      bestElevator.sendMessage(new Message(floor, direction));
+      if (bestElevator.getDirection() == Direction.UP && bestElevator.getCurrentFloor() > request
+          .getFloor()) {
+        message.setDestinationListDirection(Direction.DOWN);
+      } else if (bestElevator.getDirection() == Direction.DOWN
+          && bestElevator.getCurrentFloor() < request.getFloor()) {
+        message.setDestinationListDirection(Direction.UP);
+      } else {
+        message.setDestinationListDirection(request.getDirection());
+      }
+      bestElevator.sendMessage(message);
     }
   }
 
@@ -59,31 +71,32 @@ public class ElevatorControl {
    * @param direction
    * @param elevator - the elevator to compute distance with
    */
-  public int computeElevatorDistance(int floor, Direction direction, Elevator elevator) {
+  public int computeElevatorDistance(Request request, Elevator elevator) {
     if (elevator.getDirection() == Direction.UP) {
-      if (floor > elevator.getCurrentFloor()) {
-        return floor - elevator.getCurrentFloor();
+      if (request.getFloor() > elevator.getCurrentFloor()) {
+        return request.getFloor() - elevator.getCurrentFloor();
       } else {
         System.out.println(elevator.getDestinationsUp().getLastDestination());
         return 2 * (elevator.getDestinationsUp().getLastDestination()) - elevator.getCurrentFloor()
-            - floor;
+            - request.getFloor();
       }
     } else if (elevator.getDirection() == Direction.DOWN) {
-      if (floor < elevator.getCurrentFloor()) {
-        return elevator.getCurrentFloor() - floor;
+      if (request.getFloor() < elevator.getCurrentFloor()) {
+        return elevator.getCurrentFloor() - request.getFloor();
       } else {
-        return elevator.getCurrentFloor() + floor - 2 * (elevator.getDestinationsDown()
+        return elevator.getCurrentFloor() + request.getFloor() - 2 * (elevator.getDestinationsDown()
             .getLastDestination());
       }
     } else {
-      if (floor < elevator.getCurrentFloor()) {
-        return elevator.getCurrentFloor() - floor;
+      if (request.getFloor() < elevator.getCurrentFloor()) {
+        return elevator.getCurrentFloor() - request.getFloor();
       } else {
-        return floor - elevator.getCurrentFloor();
+        return request.getFloor() - elevator.getCurrentFloor();
       }
     }
   }
 
+  // Getters and setters
   public int getNumRacks() {
     return numRacks;
   }

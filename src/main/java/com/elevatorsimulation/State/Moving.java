@@ -1,11 +1,14 @@
 package com.elevatorsimulation.State;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.elevatorsimulation.Message.Direction;
 import com.elevatorsimulation.Message.Message;
 import com.elevatorsimulation.entities.Elevator;
 
 public class Moving implements IState<Elevator> {
 
+  private static final Logger logger = Logger.getLogger(Moving.class.getName());
   private static Moving instance = null;
 
   private Moving() {
@@ -19,29 +22,48 @@ public class Moving implements IState<Elevator> {
   }
 
   public void enter(Elevator owner) {
-    System.out.println("Entering Moving state.");
+    logger.log(Level.INFO, "Moving State: Entering Moving State.");
   }
 
   public void execute(Elevator owner) {
-    System.out.println("Executing Moving state.");
+    logger.log(Level.INFO, "Moving state: Executing moving state.");
     if (owner.getDirection() == Direction.UP) {
-      System.out.println("Going to floor " + owner.getDestinationsUp().getNextDestination());
-      owner.setCurrentFloor(owner.getDestinationsUp().removeNextDestination());
-      System.out.println("Reached floor " + owner.getCurrentFloor());
+      owner.setCurrentFloor(owner.getCurrentFloor() + 1);
+      logger.log(Level.INFO, "Moving state: Reached floor: " + owner.getCurrentFloor());
+      if (owner.getCurrentFloor() + 1 > owner.getNumFloors()) {
+        logger.log(Level.INFO, "Moving state: Reached top floor, Reverting direction.");
+        owner.setDirection(Direction.DOWN);
+      }
+      if (owner.getDestinationsUp().getDestinationList().contains(owner.getCurrentFloor())) {
+        logger.log(Level.INFO,
+            "Moving state: Destination floor reached, floor = " + owner.getCurrentFloor());
+        owner.destinationReachedEvent(owner.getCurrentFloor());
+        owner.getDestinationsUp().removeNextDestination();
+        owner.getStateMachine().changeState(Loading.getInstance());
+      }
     } else {
-      System.out.println("Going to floor " + owner.getDestinationsDown().getNextDestination());
-      owner.setCurrentFloor(owner.getDestinationsDown().removeNextDestination());
-      System.out.println("Reached floor " + owner.getCurrentFloor());
+      owner.setCurrentFloor(owner.getCurrentFloor() - 1);
+      logger.log(Level.INFO, "Moving state: Reached floor: " + owner.getCurrentFloor());
+      if (owner.getCurrentFloor() - 1 < 0) {
+        logger.log(Level.INFO, "Moving state: Reached bottom floor, Reverting direction.");
+        owner.setDirection(Direction.UP);
+      }
+      if (owner.getDestinationsDown().getDestinationList().contains(owner.getCurrentFloor())) {
+        logger.log(Level.INFO,
+            "Moving state: Destination floor reached, floor = " + owner.getCurrentFloor());
+        owner.destinationReachedEvent(owner.getCurrentFloor());
+        owner.getDestinationsDown().removeNextDestination();
+        owner.getStateMachine().changeState(Loading.getInstance());
+      }
     }
   }
 
   public void exit(Elevator owner) {
-    System.out.println("Exiting Moving state.");
+    logger.log(Level.INFO, "Moving State: Exiting Moving State.");
   }
 
   public void onMessage(Elevator owner, Message message) {
-    System.out.println("Received message while on Moving state, (Floor: " + message.getRequestFloor()
-        + " Direction: " + message.getDestinationListDirection() + ")");
+    logger.log(Level.INFO, "Moving State: Received message.");
     switch (message.getDestinationListDirection()) {
       case UP:
         owner.getDestinationsUp().addDestination(message.getRequestFloor());

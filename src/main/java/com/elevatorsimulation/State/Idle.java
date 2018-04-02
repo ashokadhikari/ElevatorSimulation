@@ -1,10 +1,14 @@
 package com.elevatorsimulation.State;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import com.elevatorsimulation.Message.Direction;
 import com.elevatorsimulation.Message.Message;
 import com.elevatorsimulation.entities.Elevator;
 
 public class Idle implements IState<Elevator> {
 
+  private static final Logger logger = Logger.getLogger(Idle.class.getName());
   private static Idle instance = null;
 
   private Idle() {
@@ -15,23 +19,23 @@ public class Idle implements IState<Elevator> {
     if (instance == null) {
       instance = new Idle();
     }
-    System.out.println("Getting instance from Idle.");
     return instance;
   }
 
   public void enter(Elevator owner) {
-    System.out.println("Entering idle state.");
+    logger.log(Level.INFO, "Idle State: Entering Idle State.");
+    owner.setDirection(Direction.NONE);
   }
 
   public void execute(Elevator owner) {
-    System.out.println("Executing idle state.");
+    logger.log(Level.INFO, "Idle State: Entering Idle State.");
   }
 
   public void exit(Elevator owner) {
-    System.out.println("Exiting idle state.");
+    logger.log(Level.INFO, "Idle State: Entering Idle State.");
   }
 
   public void onMessage(Elevator owner, Message message) {
-    System.out.println("Reveived message.");
+    logger.log(Level.INFO, "Idle State: Received message.");
   }
 }

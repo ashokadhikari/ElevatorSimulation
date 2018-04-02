@@ -1,6 +1,7 @@
 package com.elevatorsimulation;
 
 import com.elevatorsimulation.Message.Direction;
+import com.elevatorsimulation.Message.Request;
 import com.elevatorsimulation.State.Idle;
 import com.elevatorsimulation.State.Loading;
 import com.elevatorsimulation.State.Moving;
@@ -41,8 +42,10 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
   public void testElevatorDistanceWhenIdle() {
     // When elevator is Idle, and in 0th floor, if someone from floor 2 calls it, the distance should be 2 no matter
     // what direction it is called.
-    assertEquals(2, elevatorControl.computeElevatorDistance(2, Direction.UP, elevator));
-    assertEquals(2, elevatorControl.computeElevatorDistance(2, Direction.DOWN, elevator));
+    Request upRequest = new Request(2, Direction.UP);
+    Request downRequest = new Request(2, Direction.DOWN);
+    assertEquals(2, elevatorControl.computeElevatorDistance(upRequest, elevator));
+    assertEquals(2, elevatorControl.computeElevatorDistance(downRequest, elevator));
   }
 
   public void testElevatorDistanceWhenMovingUpScenario1() {
@@ -58,9 +61,10 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     elevator.getDestinationsUp().addDestinations(new int[]{5, 6, 8});
     elevator.getStateMachine().changeState(Moving.getInstance());
     elevator.setDirection(Direction.UP);
-    elevatorControl.handleRequest(2, Direction.DOWN);
+    Request request = new Request(2, Direction.DOWN);
+    elevatorControl.handleRequest(request);
 
-    assertEquals(11, elevatorControl.computeElevatorDistance(2, Direction.DOWN, elevator));
+    assertEquals(11, elevatorControl.computeElevatorDistance(request, elevator));
     assertEquals(1, elevator.getDestinationsDown().getDestinationList().size());
     assertEquals(2, elevator.getDestinationsDown().getNextDestination());
   }
@@ -71,16 +75,17 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
      * Elevator has [5, 6, 8] in destination up list.
      * User presses Floor=2, Direction=Up.
      * Distance between elevator and requesting floor should be 11.
-     * DestinationUp should now have 2.
+     * DestinationDown should now have 2.
      * Elevator state should be Moving state.
      * */
     elevator.setCurrentFloor(3);
     elevator.getDestinationsUp().addDestinations(new int[]{5, 6, 8});
     elevator.getStateMachine().changeState(Moving.getInstance());
     elevator.setDirection(Direction.UP);
-    elevatorControl.handleRequest(2, Direction.DOWN);
+    Request request = new Request(2, Direction.UP);
+    elevatorControl.handleRequest(request);
 
-    assertEquals(11, elevatorControl.computeElevatorDistance(2, Direction.DOWN, elevator));
+    assertEquals(11, elevatorControl.computeElevatorDistance(request, elevator));
     assertEquals(1, elevator.getDestinationsDown().getDestinationList().size());
     assertEquals(2, elevator.getDestinationsDown().getNextDestination());
   }
@@ -98,10 +103,11 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     elevator.getDestinationsUp().addDestinations(new int[]{9, 10});
     elevator.getStateMachine().changeState(Moving.getInstance());
     elevator.setDirection(Direction.UP);
+    Request request = new Request(5, Direction.UP);
     assertEquals(elevator.getDirection(), Direction.UP);
 
-    assertEquals(2, elevatorControl.computeElevatorDistance(5, Direction.UP, elevator));
-    elevatorControl.handleRequest(5, Direction.UP);
+    assertEquals(2, elevatorControl.computeElevatorDistance(request, elevator));
+    elevatorControl.handleRequest(request);
 
     assertEquals(5, (int) elevator.getDestinationsUp().getDestinationList().get(0));
     assertEquals(9, (int) elevator.getDestinationsUp().getDestinationList().get(1));
@@ -123,26 +129,112 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     elevator.setDirection(Direction.UP);
     elevator.getDestinationsUp().addDestinations(new int[]{6, 7, 10});
     elevator.getStateMachine().changeState(Moving.getInstance());
+    Request request = new Request(2, Direction.DOWN);
+    elevatorControl.handleRequest(request);
 
-    elevatorControl.handleRequest(2, Direction.DOWN);
-
-    assertEquals(13, elevatorControl.computeElevatorDistance(2, Direction.DOWN, elevator));
+    assertEquals(13, elevatorControl.computeElevatorDistance(request, elevator));
     assertEquals(1, elevator.getDestinationsDown().getDestinationList().size());
     assertEquals(2, elevator.getDestinationsDown().getLastDestination());
   }
-}
 
-//    // Same test but for elevator going down.
-//    elevator.setCurrentFloor(9);
-//    elevator.getDestinationsDown().addDestination(1);
-//    elevator.getDestinationsDown().addDestination(2);
-//    elevator.getStateMachine().changeState(Moving.getInstance());
-//    elevator.setDirection(Direction.DOWN);
-//    assertEquals(elevator.getDirection(), Direction.DOWN);
-//
-//    assertEquals(4, elevatorControl.computeElevatorDistance(5, Direction.DOWN, elevator));
-//    elevatorControl.handleRequest(5, Direction.DOWN);
-//
-//    assertEquals(5, (int) elevator.getDestinationsDown().getDestinationList().get(0));
-//    assertEquals(2, (int) elevator.getDestinationsDown().getDestinationList().get(1));
-//    assertEquals(1, (int) elevator.getDestinationsDown().getDestinationList().get(2));
+  // Movement Down scenarios.
+  public void testElevatorDistanceWhenMovingDownScenario1() {
+    /*
+     * Elevator is moving down, current floor is 9.
+     * Elevator has [2, 4, 5] in destination list.
+     * User presses Floor=10, Direction=Down.
+     * Distance between elevator and requesting floor should be 15.
+     * DestinationUp should now have 10.
+     * Elevator state should be Moving state.
+     * */
+    elevator.setCurrentFloor(9);
+    elevator.getDestinationsDown().addDestinations(new int[]{2, 4, 5});
+    elevator.getStateMachine().changeState(Moving.getInstance());
+    elevator.setDirection(Direction.DOWN);
+    Request request = new Request(10, Direction.DOWN);
+    elevatorControl.handleRequest(request);
+
+    assertEquals(15, elevatorControl.computeElevatorDistance(request, elevator));
+    assertEquals(1, elevator.getDestinationsUp().getDestinationList().size());
+    assertEquals(10, elevator.getDestinationsUp().getNextDestination());
+  }
+
+
+  // Integration tests.
+  public void testElevatorMovingToLoadingWhenDestinationReached() {
+    /*
+    * Elevator is moving up, current floor is 3.
+    * Elevator has [5, 6, 7] in destination up list.
+    * When elevator reaches floor 5, it changes its state to Loading state.
+    * Destination up list should now have [6, 7].
+    * Elevator should still have direction UP.
+    * */
+
+    elevator.setCurrentFloor(3);
+    elevator.getDestinationsUp().addDestinations(new int[]{5, 6, 7});
+    elevator.getStateMachine().changeState(Moving.getInstance());
+    elevator.setDirection(Direction.UP);
+
+    // Floor 4
+    elevator.getStateMachine().execute();
+    // Floor 5
+    elevator.getStateMachine().execute();
+
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    assertEquals(2, elevator.getDestinationsUp().getDestinationList().size());
+  }
+
+  public void testElevatorDirectionChangeWhenTopReached() {
+    /*
+    * Elevator is moving up, current floor is 10.
+    * Elevator has [12] in destination up list.
+    * Elevator has [2] in its destination down list.
+    * When elevator reaches floor 12, it changes its direction to DOWN.
+    * Destination up list should now be empty.
+    * Elevator direction should now be DOWN.
+     */
+    elevator.setCurrentFloor(10);
+    elevator.getDestinationsUp().addDestinations(new int[]{12});
+    elevator.getDestinationsDown().addDestinations(new int[]{2});
+    elevator.getStateMachine().changeState(Moving.getInstance());
+    elevator.setDirection(Direction.UP);
+
+    // Floor 11
+    elevator.getStateMachine().execute();
+    // Floor 12
+    elevator.getStateMachine().execute();
+    // Back To Moving State
+    elevator.getStateMachine().execute();
+
+    assertTrue(elevator.getStateMachine().isInState(Moving.getInstance()));
+    assertEquals(0, elevator.getDestinationsUp().getDestinationList().size());
+    assertEquals(Direction.DOWN, elevator.getDirection());
+  }
+
+  public void testElevatorStateWhenTopReachedAndNoMoreDestinations() {
+    /*
+    * Elevator is moving up, current floor is 10.
+    * Elevator has [11, 12] in destination up list.
+    * When elevator reaches floor 12, it changes direction to DOWN.
+    * Then elevator changes its state to Idle.
+    * Then elevator direction should be NONE.
+    * */
+    elevator.setCurrentFloor(10);
+    elevator.getDestinationsUp().addDestinations(new int[]{11, 12});
+    elevator.getStateMachine().changeState(Moving.getInstance());
+    elevator.setDirection(Direction.UP);
+
+    // Floor 11
+    elevator.getStateMachine().execute();
+    // Back to Moving State
+    elevator.getStateMachine().execute();
+    // Floor 12
+    elevator.getStateMachine().execute();
+    // Back to Moving State
+    elevator.getStateMachine().execute();
+
+    assertTrue(elevator.getStateMachine().isInState(Idle.getInstance()));
+    assertTrue(elevator.getDestinationsUp().isEmpty());
+    assertEquals(Direction.NONE, elevator.getDirection());
+  }
+}

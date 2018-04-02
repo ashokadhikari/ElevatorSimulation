@@ -40,6 +40,10 @@ public class Destinations {
     return destinationList.remove(0);
   }
 
+  public boolean isEmpty() {
+    return destinationList.isEmpty();
+  }
+
   public ArrayList<Integer> getDestinationList() {
     return destinationList;
   }
