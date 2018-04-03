@@ -2,6 +2,7 @@ package com.elevatorsimulation.State;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.elevatorsimulation.Message.Direction;
 import com.elevatorsimulation.Message.Message;
 import com.elevatorsimulation.entities.Elevator;
 
@@ -32,6 +33,12 @@ public class Loading implements IState<Elevator> {
       owner.getStateMachine().changeState(Idle.getInstance());
     } else {
       owner.getStateMachine().changeState(Moving.getInstance());
+      if (owner.getDestinationsUp().isEmpty()) {
+        owner.setDirection(Direction.DOWN);
+      }
+      if (owner.getDestinationsDown().isEmpty()) {
+        owner.setDirection(Direction.UP);
+      }
     }
   }
 

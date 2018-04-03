@@ -34,6 +34,10 @@ public class Moving implements IState<Elevator> {
         logger.log(Level.INFO, "Moving state: Reached top floor, Reverting direction.");
         owner.setDirection(Direction.DOWN);
       }
+      if (owner.getDestinationsUp().isEmpty()) {
+        logger.log(Level.INFO, "Moving State: No more UP destinations. Reverting direction");
+        owner.setDirection(Direction.DOWN);
+      }
       if (owner.getDestinationsUp().getDestinationList().contains(owner.getCurrentFloor())) {
         logger.log(Level.INFO,
             "Moving state: Destination floor reached, floor = " + owner.getCurrentFloor());
@@ -46,6 +50,10 @@ public class Moving implements IState<Elevator> {
       logger.log(Level.INFO, "Moving state: Reached floor: " + owner.getCurrentFloor());
       if (owner.getCurrentFloor() - 1 < 0) {
         logger.log(Level.INFO, "Moving state: Reached bottom floor, Reverting direction.");
+        owner.setDirection(Direction.UP);
+      }
+      if (owner.getDestinationsDown().isEmpty()) {
+        logger.log(Level.INFO, "Moving State: No more DOWN destinations. Reverting direction");
         owner.setDirection(Direction.UP);
       }
       if (owner.getDestinationsDown().getDestinationList().contains(owner.getCurrentFloor())) {

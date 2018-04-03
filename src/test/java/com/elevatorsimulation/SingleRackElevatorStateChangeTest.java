@@ -291,4 +291,73 @@ public class SingleRackElevatorStateChangeTest extends TestCase {
     assertEquals(5, elevator.getDestinationsDown().getNextDestination());
     assertEquals(5, elevatorControl.computeElevatorDistance(request, elevator));
   }
+
+  public void testElevatorServersAllRequests() {
+    /*
+    * Elevator is in Idle State and current floor is 2.
+    * When Users press (5, UP), (6, DOWN), (8, UP), (10, DOWN), (1, DOWN) from different floors
+    * Then elevator should handle all the requests.
+    * */
+    elevator.setCurrentFloor(2);
+
+    Request request = new Request(5, Direction.UP);
+    elevatorControl.handleRequest(request);
+
+    // Elevator should now transition to moving state.
+    assertTrue(elevator.getStateMachine().isInState(Moving.getInstance()));
+    assertEquals(5, elevator.getDestinationsUp().getNextDestination());
+    assertEquals(Direction.UP, elevator.getDirection());
+
+    elevator.getStateMachine().execute();
+    elevatorControl.handleRequest(new Request(6, Direction.DOWN));
+    elevatorControl.handleRequest(new Request(8, Direction.UP));
+    elevator.getStateMachine().execute();
+    elevator.getStateMachine().execute();
+
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    assertEquals(8, elevator.getDestinationsUp().getNextDestination());
+    assertEquals(6, elevator.getDestinationsDown().getNextDestination());
+
+    // Floor 6
+    elevator.getStateMachine().execute();
+    // Loading
+    elevator.getStateMachine().execute();
+    elevatorControl.handleRequest(new Request(1, Direction.UP));
+    // Floor 7
+    elevator.getStateMachine().execute();
+    // Floor 8
+    elevator.getStateMachine().execute();
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    assertTrue(elevator.getDestinationsUp().isEmpty());
+    assertEquals(6, elevator.getDestinationsDown().getNextDestination());
+
+    // Moving
+    elevator.getStateMachine().execute();
+    assertEquals(Direction.DOWN, elevator.getDirection());
+
+    // Floor 7
+    elevator.getStateMachine().execute();
+    // Floor 6
+    elevator.getStateMachine().execute();
+    // Loading
+    elevator.getStateMachine().execute();
+    assertEquals(1, elevator.getDestinationsDown().getNextDestination());
+
+    // Floor 5
+    elevator.getStateMachine().execute();
+    // Floor 4
+    elevator.getStateMachine().execute();
+    // Floor 3
+    elevator.getStateMachine().execute();
+    // Floor 2
+    elevator.getStateMachine().execute();
+    // Floor 1
+    elevator.getStateMachine().execute();
+
+    assertTrue(elevator.getStateMachine().isInState(Loading.getInstance()));
+    // Idle State
+    elevator.getStateMachine().execute();
+    assertTrue(elevator.getStateMachine().isInState(Idle.getInstance()));
+
+  }
 }
