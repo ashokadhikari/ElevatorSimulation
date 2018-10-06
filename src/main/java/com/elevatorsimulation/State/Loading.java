@@ -25,6 +25,7 @@ public class Loading implements IState<Elevator> {
     logger.log(Level.INFO, "Loading State: Entering Loading State.");
   }
 
+
   public void execute(Elevator owner) {
     logger.log(Level.INFO, "Loading State: Executing Loading State.");
     if (owner.getDestinationsUp().isEmpty() && owner.getDestinationsDown().isEmpty()) {
